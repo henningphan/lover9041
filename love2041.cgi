@@ -8,8 +8,12 @@ use CGI qw/:all/;
 use CGI::Carp qw(fatalsToBrowser warningsToBrowser);
 use Data::Dumper;  
 use List::Util qw/min max/;
+use Cwd 'abs_path';
+use FindBin;
 warningsToBrowser(1);
 
+# Relative paths will be correct if we use the scripts location as working directory
+chdir $FindBin::Bin;
 # print start of HTML ASAP to assist debugging if there is an error in the script
 print page_header();
 
