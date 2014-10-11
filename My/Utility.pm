@@ -5,7 +5,7 @@ use List::Util qw(first min);
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(findStudent findNextStudent getProfile);
+our @EXPORT_OK = qw(findStudent findNextStudent getProfile attrMatch);
 
 sub findStudent($){  # Returns bool if found
   my($username) =@_;
@@ -61,6 +61,15 @@ sub getProfile($){ # Returns a hash<string, \@>
     $profile{$key} = \@values;
   }
   return \%profile;
+}
+
+sub attrMatch($$$){
+  my($attr,$value,$hashRef) = @_;
+  my @valueList = @{${$hashRef}{$attr}};
+  foreach my $v (@valueList){
+    if( $v eq $value){ return 1; }
+  }
+  return 0;
 }
 
 1;
