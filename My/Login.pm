@@ -1,6 +1,7 @@
 package My::Login;
 use strict;
 use warnings;
+use My::Utility qw(findStudent);
 
 use Exporter qw(import);
 
@@ -9,7 +10,7 @@ sub authenticate($$){
   my( $username, $pwd ) =@_;
   my $path = "./students/$username";
 # Does user exist?
-  if( -e $path ){
+  if( findStudent($username) ){
 # Can we open his profile?
 # TODO just return 0 if we cant
     open F, "$path/profile.txt" or die "Cant open file=($path) to check pwd";
