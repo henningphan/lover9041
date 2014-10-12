@@ -16,7 +16,7 @@ sub findStudent($){  # Returns bool if found
   return 0;
 }
 
-sub findNextStudent($$){ # Returns username if found else empty string
+sub findNextStudent($$){ # Returns list of username if found else empty string
   my($username,$count) = @_;
   my $usernameNext ="";
   my @students = glob("./students/*");
@@ -25,8 +25,10 @@ sub findNextStudent($$){ # Returns username if found else empty string
   }
   my $idx = first{ $students[$_] eq "$username" }0..$#students;
   $idx = $idx+1;
+  print "$idx $#students\n";
   if( not defined $idx or $idx > $#students ){
-    return @students[0..9];
+    my @temp = @students[0..$count-1];
+    return \@temp;
   }
   my $idxEnd = min($idx+$count-1, $#students);
   my @temp = @students[$idx..$idxEnd];
