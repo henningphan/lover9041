@@ -75,8 +75,8 @@ sub getPartProfile($){
   return $hashRef;
 
 }
-
-sub attrMatch($$$){
+# Returns bool if key found with correct value in the hashref
+sub attrMatch($$$){ 
   my($attr,$value,$hashRef) = @_;
   my @valueList = @{${$hashRef}{$attr}};
   foreach my $v (@valueList){

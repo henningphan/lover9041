@@ -1,7 +1,7 @@
 package My::Login;
 use strict;
 use warnings;
-use My::Utility qw(findStudent);
+use My::Utility qw(findStudent getProfile attrMatch);
 
 use Exporter qw(import);
 
@@ -11,20 +11,9 @@ sub authenticate($$){
   my $path = "./students/$username";
 # Does user exist?
   if( findStudent($username) ){
-# Can we open his profile?
-# TODO just return 0 if we cant
-    open F, "$path/profile.txt" or die "Cant open file=($path) to check pwd";
-# Extract his password
-    my $line;
-    while($line=<F>){
-      if( $line =~ /password:/){
-        $line = <F>;
-        chomp $line;
-        $line =~ s/^\s*//;
-        if( $line eq $pwd ){
-          return 1;
-        }
-      }
+    my $hashRef = getProfile($username);
+    if(attrMatch("password",$pwd, $hashRef)){
+      return 1;
     }
   }
   return 0;
