@@ -9,6 +9,7 @@ our @EXPORT_OK = qw(findStudent findNextStudent getProfile getPartProfile attrMa
 
 sub findStudent($){  # Returns bool if found
   my($username) =@_;
+  if( $username eq "" ){ return 0;}
   my $path = "./students/$username";
   if( -e $path ){
     return 1;
