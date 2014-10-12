@@ -11,6 +11,7 @@ use List::Util qw/min max/;
 use Cwd 'abs_path';
 use FindBin;
 use My::Login qw(authenticate);
+use My::Utility qw(getProfile);
 warningsToBrowser(1);
 
 # Relative paths will be correct if we use the scripts location as working directory
@@ -20,39 +21,49 @@ chdir $FindBin::Bin;
 # some globals used through the script
 $debug = 1;
 $students_dir = "./students";
+#if($ENV{"QUERY_STRING"} eq "login"){
 
 $q = CGI->new;
-$cook = cookie("username");
-if($ENV{"QUERY_STRING"} eq "login"){
+$cookieUser = $q->cookie("username");
+$cookiePwd = $q->cookie("password");
+
+# First time logging in?
+if( not defined $cookieUser ){
     $postUsername = param("username");
     $postPwd = param ("password");
     if( authenticate($postUsername, $postPwd)){
-      $cookieUsername = cookie(
+      $cookieUser = cookie(
         -name => "username",
         -value=> "$postUsername");
       $cookiePwd = cookie(
         -name => "password",
         -value=> "$postPwd");
-      print redirect(-url=>"love2041.cgi");
-      exit 0;
-      print page_header($cookieUsername, $cookiePwd);
-      print browse_screen();
+      print page_header($cookieUser, $cookiePwd);
+      print myProfile("$postUsername");
       print page_trailer();
-    }
+      exit 0;
   }
+  print login();
+  exit 0;
+}
+# Do you have a valid cookie?
+if( not authenticate($cookieUser, $cookiePwd) ){
+  print logout();
+  exit 0;
+}
+print page_header($cookieUser, $cookiePwd);
+print myProfile($cookieUser);
+print page_trailer();
 
-login();
-
-exit 0;	
 
 sub login{
-  print $q->header,
+  return $q->header,
       $q->start_html("Love9041"),
       $q->h1("Meet people close to you with a single click"),
       $q->h2("Login"),
-      start_form(
+      $q->start_form(
         -method =>"post",
-        -action=>"a.cgi?login",
+        -action=>"a.cgi?myprofile",
         -enctype=>'text/plain'
         -onsubmit=>"test"),
       $q->textfield(
@@ -66,9 +77,64 @@ sub login{
         -size => 20),
         "<br>",
         "<input type='submit' value='Submit'>",
-      end_form,
+      $q->end_form,
       $q->end_html;
 }
+sub logout{
+  $cookieUser = cookie( 
+    -name =>"username",
+    -value => "",
+    -expires => "now");
+  $cookiePwd = cookie( 
+    -name =>"password",
+    -value => "",
+    -expires => "now");
+  return $q->header( -cookie => [$cookieUser, $cookiePwd]),
+      $q->start_html("Love9041"),
+      $q->h1("Meet people close to you with a single click"),
+      $q->h2("Login -> Invalid cookie"),
+      $q->start_form(
+        -method =>"post",
+        -action=>"a.cgi?myprofile",
+        -enctype=>'text/plain'
+        -onsubmit=>"test"),
+      $q->textfield(
+        -name => "username",
+        -placeholder => "username",
+        -size => 20),
+        "<br>",
+      $q->textfield(
+        -name => "password",
+        -placeholder => "password",
+        -size => 20),
+        "<br>",
+        "<input type='submit' value='Submit'>",
+      $q->end_form,
+      $q->end_html;
+
+}
+sub myProfile($){
+  my ($username) = @_;
+  $profileRef = getProfile($username);
+  my $profileText;
+  foreach $key (keys %$profileRef){
+    $profileText = $profileText . "$key:\n";
+    foreach $item (@{${$profileRef}{$key}}){
+      $profileText = $profileText . "  $item\n";
+    }
+  }
+  return start_form, "\n",
+  "<hr>",
+  "<img src=\"./students/$username/profile.jpg\">",
+  pre($profileText), "\n",
+  "<hr>",
+  hidden('n', $n + 1),"\n",
+	submit('Next student'),"\n",
+	end_form, "\n";
+
+
+}
+  
 sub browse_screen {
 	my $n = param('n') || 0;
 	my @students = glob("$students_dir/*");
