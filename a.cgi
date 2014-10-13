@@ -11,7 +11,7 @@ use List::Util qw/min max/;
 use Cwd 'abs_path';
 use FindBin;
 use My::Login qw(authenticate);
-use My::Utility qw(getProfile);
+use My::Utility qw(getProfile getPartProfile);
 warningsToBrowser(1);
 
 # Relative paths will be correct if we use the scripts location as working directory
@@ -38,6 +38,7 @@ if( not defined $cookieUser ){
         -name => "password",
         -value=> "$postPwd");
       print page_header($cookieUser, $cookiePwd);
+      print "\n",menu();
       print myProfile("$postUsername");
       print page_trailer();
       exit 0;
@@ -58,17 +59,15 @@ if(param("view") eq "myprofile"){
   print myProfile($cookieUser);
   print page_trailer();
   exit 0;
-} elsif ($ENV{"QUERY_STRING"} eq "logout"){
+} elsif (param("view") eq "logout"){
   print logout();
   exit 0;
 
-} elsif( param("view") eq "view" ){
-  $param = param("hen");
-  print header,
-   		start_html("-title"=>"LOVE9041", -bgcolor=>"#FEDCBA"),
- 		center(h2(i("LOVE2041")));
-  print h1("$param"),
-  page_trailer();
+} elsif( param("view") eq "partprofile" ){
+  print page_header();
+  print menu();
+  print partProfile($cookieUser);
+  print page_trailer();
 
 }
 
@@ -153,6 +152,23 @@ sub myProfile($){
 
 
 }
+sub partProfile($){
+  my ($username) = @_;
+  my $profileRef = getPartProfile( $username);
+  foreach $key (sort keys %$profileRef){
+    $profileText = $profileText . "$key:\n";
+    foreach $item (@{${$profileRef}{$key}}){
+      $profileText = $profileText . "  $item\n";
+    }
+  }
+  return start_form, "\n",
+  "<hr>",
+  "<img src=\"./students/$username/profile.jpg\">",
+  pre($profileText), "\n",
+  "<hr>";
+
+
+}
   
 sub browse_screen {
 	my $n = param('n') || 0;
@@ -208,5 +224,7 @@ sub menu {
   </style>\n" . 
   "<ul>
   <li><a href='a.cgi?view=myprofile'>MyProfile</a><li>
+  <li><a href='a.cgi?view=partprofile'>partProfile</a><li>
+  <li><a href='a.cgi?view=logout'>Logout</a><li>
   </ul>";
 } 
