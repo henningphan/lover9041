@@ -5,7 +5,7 @@ use List::Util qw(first min);
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(studentExist getXStudents getNextStudent getProfile getPartProfile attrMatch getPreference);
+our @EXPORT_OK = qw(studentExist getXStudents getNextStudent getProfile getPartProfile attrMatch getPreference getPrevStudent);
 
 sub studentExist($){  # Returns bool if found
   my($username) =@_;
@@ -36,7 +36,7 @@ sub getXStudents($$){
 }
 # Returns next student after $username
 # if $username is empty string returns first student
-sub getNextStudent($){ 
+sub getNextStudent($){
   my($username) = @_;
   my $usernameNext ="";
   my @students = glob("./students/*");
@@ -44,7 +44,25 @@ sub getNextStudent($){
     $stud =~ s/^\.\/students\///;
   }
   my $idx = first{ $students[$_] eq "$username" }0..$#students;
-  $idx = ($idx+1)% ($#students+1);
+  $idx = ($idx || 0 +1)% ($#students+1);
+  return $students[$idx];
+
+}
+# getPrevStudent $username [ $offset ] 
+# returns next user with a negative offset from $username
+sub getPrevStudent{
+  my($username, $offset) = @_;
+  my $usernameNext ="";
+  my @students = glob("./students/*");
+  for my $stud (@students){
+    $stud =~ s/^\.\/students\///;
+  }
+  my $idx= first{ $students[$_] eq "$username" }0..$#students;
+  if( defined $offset){
+    $idx = ($idx || 0-$offset )% ($#students+1);
+  }else{
+    $idx = ($idx || 0-1 )% ($#students+1);
+  }
   return $students[$idx];
 
 }
