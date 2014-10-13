@@ -51,9 +51,12 @@ if( not authenticate($cookieUser, $cookiePwd) ){
   print logout();
   exit 0;
 }
-print page_header($cookieUser, $cookiePwd);
-print myProfile($cookieUser);
-print page_trailer();
+if($ENV{"QUERY_STRING"} eq "myprofile"){
+  print page_header($cookieUser, $cookiePwd);
+  print myProfile($cookieUser);
+  print page_trailer();
+  exit 0;
+}
 
 
 sub login{
@@ -117,7 +120,7 @@ sub myProfile($){
   my ($username) = @_;
   $profileRef = getProfile($username);
   my $profileText;
-  foreach $key (keys %$profileRef){
+  foreach $key (sort keys %$profileRef){
     $profileText = $profileText . "$key:\n";
     foreach $item (@{${$profileRef}{$key}}){
       $profileText = $profileText . "  $item\n";
