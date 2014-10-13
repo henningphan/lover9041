@@ -21,7 +21,6 @@ chdir $FindBin::Bin;
 # some globals used through the script
 $debug = 1;
 $students_dir = "./students";
-#if($ENV{"QUERY_STRING"} eq "login"){
 
 $q = CGI->new;
 $cookieUser = $q->cookie("username");
@@ -51,11 +50,26 @@ if( not authenticate($cookieUser, $cookiePwd) ){
   print logout();
   exit 0;
 }
-if($ENV{"QUERY_STRING"} eq "myprofile"){
-  print page_header($cookieUser, $cookiePwd);
+if(param("view") eq "myprofile"){
+  print header,
+   		start_html("-title"=>"LOVE9041", -bgcolor=>"#FEDCBA"),
+ 		center(h2(i("LOVE2041")));
+  print "\n",menu();  
   print myProfile($cookieUser);
   print page_trailer();
   exit 0;
+} elsif ($ENV{"QUERY_STRING"} eq "logout"){
+  print logout();
+  exit 0;
+
+} elsif( param("view") eq "view" ){
+  $param = param("hen");
+  print header,
+   		start_html("-title"=>"LOVE9041", -bgcolor=>"#FEDCBA"),
+ 		center(h2(i("LOVE2041")));
+  print h1("$param"),
+  page_trailer();
+
 }
 
 
@@ -66,17 +80,19 @@ sub login{
       $q->h2("Login"),
       $q->start_form(
         -method =>"post",
-        -action=>"a.cgi?myprofile",
+        -action=>"a.cgi?view=myprofile",
         -enctype=>'text/plain'
         -onsubmit=>"test"),
       $q->textfield(
         -name => "username",
         -placeholder => "username",
+        -value => "AwesomeWoman76",
         -size => 20),
         "<br>",
       $q->textfield(
         -name => "password",
         -placeholder => "password",
+        -value => "florida",
         -size => 20),
         "<br>",
         "<input type='submit' value='Submit'>",
@@ -98,7 +114,7 @@ sub logout{
       $q->h2("Login -> Invalid cookie"),
       $q->start_form(
         -method =>"post",
-        -action=>"a.cgi?myprofile",
+        -action=>"a.cgi?view=myprofile",
         -enctype=>'text/plain'
         -onsubmit=>"test"),
       $q->textfield(
@@ -178,3 +194,19 @@ sub page_trailer {
 	$html .= end_html;
 	return $html;
 }
+sub menu {
+  return "<style>
+  ul {
+        list-style-type: none;
+            margin: 0;
+                padding: 0;
+  }
+
+  li {
+        display: inline;
+  }
+  </style>\n" . 
+  "<ul>
+  <li><a href='a.cgi?view=myprofile'>MyProfile</a><li>
+  </ul>";
+} 
