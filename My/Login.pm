@@ -1,7 +1,7 @@
 package My::Login;
 use strict;
 use warnings;
-use My::Utility qw(findStudent getProfile attrMatch);
+use My::Utility qw(studentExist getProfile attrMatch);
 
 use Exporter qw(import);
 
@@ -10,7 +10,7 @@ sub authenticate($$){
   my( $username, $pwd ) =@_;
   my $path = "./students/$username";
 # Does user exist?
-  if( findStudent($username) ){
+  if( studentExist($username) ){
     my $hashRef = getProfile($username);
     if(attrMatch("password",$pwd, $hashRef)){
       return 1;

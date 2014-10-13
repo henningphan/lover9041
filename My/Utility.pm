@@ -5,9 +5,9 @@ use List::Util qw(first min);
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(findStudent findNextStudent getProfile getPartProfile attrMatch getPreference);
+our @EXPORT_OK = qw(studentExist getXStudents getNextStudent getProfile getPartProfile attrMatch getPreference);
 
-sub findStudent($){  # Returns bool if found
+sub studentExist($){  # Returns bool if found
   my($username) =@_;
   if( $username eq "" ){ return 0;}
   my $path = "./students/$username";
@@ -16,24 +16,36 @@ sub findStudent($){  # Returns bool if found
   }
   return 0;
 }
-
-sub findNextStudent($$){ # Returns list of username if found else empty string
+# Returns @array_ref of students
+# starting from $username
+# if $username is equal to start with the first username of the list
+sub getXStudents($$){
   my($username,$count) = @_;
+  my @array;
+  if( $username eq ""){
+    push @array, getNextStudent($username);
+  }else{
+    push @array, $username;
+  }
+  while (--$count ){
+    $username = getNextStudent($username);
+    push @array, $username;
+  }
+  return \@array;
+
+}
+# Returns next student after $username
+# if $username is empty string returns first student
+sub getNextStudent($){ 
+  my($username) = @_;
   my $usernameNext ="";
   my @students = glob("./students/*");
   for my $stud (@students){
     $stud =~ s/^\.\/students\///;
   }
   my $idx = first{ $students[$_] eq "$username" }0..$#students;
-  $idx = $idx+1;
-  print "$idx $#students\n";
-  if( not defined $idx or $idx > $#students ){
-    my @temp = @students[0..$count-1];
-    return \@temp;
-  }
-  my $idxEnd = min($idx+$count-1, $#students);
-  my @temp = @students[$idx..$idxEnd];
-  return \@temp;
+  $idx = ($idx+1)% ($#students+1);
+  return $students[$idx];
 
 }
 sub getProfile($){ # Returns a hash<string, \@>

@@ -11,7 +11,7 @@ use List::Util qw/min max/;
 use Cwd 'abs_path';
 use FindBin;
 use My::Login qw(authenticate);
-use My::Utility qw(getProfile getPartProfile);
+use My::Utility qw(getProfile getPartProfile getNextStudent);
 warningsToBrowser(1);
 
 # Relative paths will be correct if we use the scripts location as working directory
@@ -67,6 +67,14 @@ if(param("view") eq "myprofile"){
   print page_header();
   print menu();
   print partProfile($cookieUser);
+  print page_trailer();
+
+} elsif( param("view") eq "browsepartprofile"){
+  my $name = param("name");
+  my $nameNext = getNextStudent($name);
+  print page_header();
+  print menu($nameNext);
+  print partProfile($name);
   print page_trailer();
 
 }
@@ -211,6 +219,8 @@ sub page_trailer {
 	return $html;
 }
 sub menu {
+  my($name) = getNextStudent("");
+  my $nameNext = getNextStudent(param("name"));
   return "<style>
   ul {
         list-style-type: none;
@@ -225,6 +235,8 @@ sub menu {
   "<ul>
   <li><a href='a.cgi?view=myprofile'>MyProfile</a><li>
   <li><a href='a.cgi?view=partprofile'>partProfile</a><li>
+  <li><a href='a.cgi?view=browsepartprofile&name=$name'>browse</a><li>
+  <li><a href='a.cgi?view=browsepartprofile&name=$nameNext'>Next</a><li>
   <li><a href='a.cgi?view=logout'>Logout</a><li>
   </ul>";
 } 
