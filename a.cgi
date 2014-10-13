@@ -11,7 +11,7 @@ use List::Util qw/min max/;
 use Cwd 'abs_path';
 use FindBin;
 use My::Login qw(authenticate);
-use My::Utility qw(getProfile getPartProfile getNextStudent);
+use My::Utility qw(getProfile getPartProfile getNextStudent getXStudents);
 warningsToBrowser(1);
 
 # Relative paths will be correct if we use the scripts location as working directory
@@ -69,12 +69,15 @@ if(param("view") eq "myprofile"){
   print partProfile($cookieUser);
   print page_trailer();
 
-} elsif( param("view") eq "browsepartprofile"){
+} elsif( param("view") eq "multipartprofile"){
   my $name = param("name");
-  my $nameNext = getNextStudent($name);
+  my $names = getXStudents($name,10);
+  param("name",$$names[$#$names]);
   print page_header();
   print menu($nameNext);
-  print partProfile($name);
+  foreach $item (@$names){
+    print partProfile($item);
+  }
   print page_trailer();
 
 }
@@ -163,6 +166,7 @@ sub myProfile($){
 sub partProfile($){
   my ($username) = @_;
   my $profileRef = getPartProfile( $username);
+  my $profileText;
   foreach $key (sort keys %$profileRef){
     $profileText = $profileText . "$key:\n";
     foreach $item (@{${$profileRef}{$key}}){
@@ -235,8 +239,8 @@ sub menu {
   "<ul>
   <li><a href='a.cgi?view=myprofile'>MyProfile</a><li>
   <li><a href='a.cgi?view=partprofile'>partProfile</a><li>
-  <li><a href='a.cgi?view=browsepartprofile&name=$name'>browse</a><li>
-  <li><a href='a.cgi?view=browsepartprofile&name=$nameNext'>Next</a><li>
+  <li><a href='a.cgi?view=multipartprofile&name=$name'>browse</a><li>
+  <li><a href='a.cgi?view=multipartprofile&name=$nameNext'>Next</a><li>
   <li><a href='a.cgi?view=logout'>Logout</a><li>
   </ul>";
 } 
