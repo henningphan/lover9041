@@ -11,7 +11,7 @@ use List::Util qw/min max/;
 use Cwd 'abs_path';
 use FindBin;
 use My::Login qw(authenticate);
-use My::Utility qw(getProfile getPartProfile getNextStudent getXStudents);
+use My::Utility qw(getProfile getPartProfile getNextStudent getXStudents getPrevStudent);
 warningsToBrowser(1);
 
 # Relative paths will be correct if we use the scripts location as working directory
@@ -222,6 +222,7 @@ sub page_trailer {
 sub menu {
   my($name) = getNextStudent("");
   my $nameNext = getNextStudent(param("name"));
+  my $namePrev = getPrevStudent(param("name"),19);
   return "<style>
   ul {
         list-style-type: none;
@@ -236,6 +237,7 @@ sub menu {
   "<ul>
   <li><a href='a.cgi?view=myprofile'>MyProfile</a><li>
   <li><a href='a.cgi?view=partprofile'>partProfile</a><li>
+  <li><a href='a.cgi?view=multipartprofile&name=$namePrev'>Prev</a><li>
   <li><a href='a.cgi?view=multipartprofile&name=$name'>browse</a><li>
   <li><a href='a.cgi?view=multipartprofile&name=$nameNext'>Next</a><li>
   <li><a href='a.cgi?view=logout'>Logout</a><li>
