@@ -80,6 +80,24 @@ if(param("view") eq "myprofile"){
   }
   print page_trailer();
 
+} elsif( param("view") eq "search"){
+  @students = glob("$students_dir/*");
+  my $chosen;
+  my $searchparam = param("searchparam");
+  foreach my $student (@students){
+    $student =~s/^\.\/students\///;
+    $chosen = $student;
+    if ( $student =~/.*$searchparam.*/ ){
+      last;
+    }
+  }
+
+  print page_header(),
+    start_html,
+    menu(),
+    partProfile($chosen),
+    end_html;
+
 }
 
 
@@ -223,6 +241,7 @@ sub menu {
   my($name) = getNextStudent("");
   my $nameNext = getNextStudent(param("name"));
   my $namePrev = getPrevStudent(param("name"),19);
+  param("view","search");
   return "<style>
   ul {
         list-style-type: none;
@@ -239,7 +258,12 @@ sub menu {
   <li><a href='a.cgi?view=partprofile'>partProfile</a><li>
   <li><a href='a.cgi?view=multipartprofile&name=$namePrev'>Prev</a><li>
   <li><a href='a.cgi?view=multipartprofile&name=$name'>browse</a><li>
-  <li><a href='a.cgi?view=multipartprofile&name=$nameNext'>Next</a><li>
-  <li><a href='a.cgi?view=logout'>Logout</a><li>
-  </ul>";
+  <li><a href='a.cgi?view=multipartprofile&name=$nameNext'>Next</a><li>","\n",
+  "<li>",
+  start_form( -method=>"get", -action=>"./a.cgi?"),
+  hidden("view" ),
+  textfield( -name=>"searchparam",-placeholder=>"search username"),
+  end_form, "<li>",
+  "<li><a href='a.cgi?view=logout'>Logout</a><li>",
+  "</ul>";
 } 

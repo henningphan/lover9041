@@ -57,13 +57,11 @@ sub getPrevStudent{
     $stud =~ s/^\.\/students\///;
   }
   my $idx= first{ $students[$_] eq "$username" }0..$#students;
-  print "idx=($idx)\n";
   if( defined $offset){
     $idx = (($idx || 0)-$offset )% ($#students+1);
   }else{
     $idx = (($idx || 0)-1 )% ($#students+1);
   }
-  print "idx=($idx)\n";
   return $students[$idx];
 
 }
