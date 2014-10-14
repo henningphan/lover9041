@@ -52,17 +52,18 @@ sub getNextStudent($){
 # returns next user with a negative offset from $username
 sub getPrevStudent{
   my($username, $offset) = @_;
-  my $usernameNext ="";
   my @students = glob("./students/*");
   for my $stud (@students){
     $stud =~ s/^\.\/students\///;
   }
   my $idx= first{ $students[$_] eq "$username" }0..$#students;
+  print "idx=($idx)\n";
   if( defined $offset){
-    $idx = ($idx || 0-$offset )% ($#students+1);
+    $idx = (($idx || 0)-$offset )% ($#students+1);
   }else{
-    $idx = ($idx || 0-1 )% ($#students+1);
+    $idx = (($idx || 0)-1 )% ($#students+1);
   }
+  print "idx=($idx)\n";
   return $students[$idx];
 
 }
