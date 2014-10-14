@@ -43,8 +43,8 @@ sub getNextStudent($){
   for my $stud (@students){
     $stud =~ s/^\.\/students\///;
   }
-  my $idx = first{ $students[$_] eq "$username" }0..$#students;
-  $idx = ($idx || 0 +1)% ($#students+1);
+  my $idx = defined $username ? first{ $students[$_] eq "$username" }0..$#students: 0;
+  $idx = ($idx  +1)% ($#students+1);
   return $students[$idx];
 
 }
