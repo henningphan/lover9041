@@ -148,21 +148,27 @@ sub match($$){
   my($src, $targ) = @_;
   die if not studentExist($src);
   die if not studentExist($targ);
-  print "src=($src)\n";
-  print "targ=($targ)\n";
   my $score = 0;
   my %srcPro= %{getProfile($src)};
   my %srcPref= %{getPreference($src)};
   my %targPro= %{getProfile($targ)};
   my %targPref = %{getPreference($targ)};
-#  $score = like($srcPref{"gender"},$targPro{"gender"});
-  $score = interval( $srcPref{"weight"}, $targPro{"weight"} );
-  print "$score\n";
-  return 1;
-
+  $score += 1000*like($srcPref{"gender"},$targPro{"gender"});
+  $score += 1000*like($srcPref{"hair_colours"},$targPro{"hair_colours"});
+  $score += interval( $srcPref{"weight"}, $targPro{"weight"} );
+  $score += interval( $srcPref{"height"}, $targPro{"height"} );
+  $score += interval( $srcPref{"age"}, $targPro{"age"} );
+  my $srcWords = getWord($src);
+  my $targWords = getWord($targ);
+  foreach my $key (keys %{$srcWords}){
+    if( exists ${$targWords}{ $key }){
+      $score += 10 * min(${$srcWords}{$key}, ${$targWords}{$key});
+    }
+  }
+  return $score;
 
 }
-sub like($$){
+sub like($$){ # Matches array1 to see if any attribute exist in array2
   my($srcRef, $targRef) = @_;
   foreach my $value (@$srcRef){
     if( grep {$_ eq $value } @$targRef){
@@ -193,16 +199,26 @@ sub interval($$){
     return 1000;
   }
   my $diff = min(abs( $boundLo-$value),abs($value-$boundHi));
-  print "diff = $diff\n";
   if( $diff > 10){
     return 0;
   }
   return 1000-100* $diff;
   
-  print "$boundLo, $boundHi, $value\n";
 
 
 }
-
+sub getWord($){
+  my ($username) = @_;
+  my $p;
+  open $p, "<", "./students/$username/profile.txt" or die "./$username/profile.txt";
+  my %hash;
+  while(  <$p>){
+    while( /(\w['\w-]*)/g){
+      $hash{ lc $1}++;
+    }
+  }
+  close $p;
+  return \%hash;
+}
 
 1;
