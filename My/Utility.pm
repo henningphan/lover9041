@@ -213,9 +213,9 @@ sub getWord($){
   open $p, "<", "./students/$username/profile.txt" or die "./$username/profile.txt";
   my %hash;
   while(  <$p>){
-    while( /(\w['\w-]*)/g){
-      $hash{ lc $1}++;
-    }
+#    while( /(\w['\w-]*)/g){
+      $hash{ lc $_}++;
+#    }
   }
   close $p;
   return \%hash;

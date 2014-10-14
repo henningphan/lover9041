@@ -11,7 +11,7 @@ use List::Util qw/min max/;
 use Cwd 'abs_path';
 use FindBin;
 use My::Login qw(authenticate);
-use My::Utility qw(getProfile getPartProfile getNextStudent getXStudents getPrevStudent);
+use My::Utility qw(getProfile getPartProfile getNextStudent getXStudents getPrevStudent match);
 warningsToBrowser(1);
 
 # Relative paths will be correct if we use the scripts location as working directory
@@ -98,6 +98,21 @@ if(param("view") eq "myprofile"){
     partProfile($chosen),
     end_html;
 
+}
+ elsif( param("view") eq "bestfit"){
+  @students = glob("$students_dir/*");
+  my %hash;
+  foreach my $stud (@students){
+    $stud =~s/^\.\/students\///;
+    $hash{$stud} = match( $cookieUser, $stud) + match( $stud, $cookieUser);
+  }
+  my $output;
+  foreach $key (sort { $hash{$b} <=> $hash{$a} } keys %hash){
+    $output = $output . "key=($key)\t $hash{$key}\n";
+  }
+  print header, start_html, pre($output);
+  print  end_html;
+  exit 0;
 }
 
 
