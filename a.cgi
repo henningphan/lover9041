@@ -152,14 +152,11 @@ sub myProfile($){
       $profileText = $profileText . "  $item\n";
     }
   }
-  return start_form, "\n",
+  return 
   "<hr>",
   "<img src=\"./students/$username/profile.jpg\">",
   pre($profileText), "\n",
   "<hr>",
-  hidden('n', $n + 1),"\n",
-	submit('Next student'),"\n",
-	end_form, "\n";
 
 
 }
@@ -173,7 +170,7 @@ sub partProfile($){
       $profileText = $profileText . "  $item\n";
     }
   }
-  return start_form, "\n",
+  return
   "<hr>",
   "<img src=\"./students/$username/profile.jpg\">",
   pre($profileText), "\n",
