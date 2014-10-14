@@ -107,10 +107,12 @@ if(param("view") eq "myprofile"){
     $hash{$stud} = match( $cookieUser, $stud) + match( $stud, $cookieUser);
   }
   my $output;
+  print page_header(), menu(),"<hr>";
   foreach $key (sort { $hash{$b} <=> $hash{$a} } keys %hash){
-    $output = $output . "key=($key)\t $hash{$key}\n";
+    print a({href=>"a.cgi?view=search&searchparam=$key"}, "$key\t score=$hash{$key}");
+    print "<br>\n";
+  #  $output = $output . "key=($key)\t $hash{$key}\n";
   }
-  print header, start_html, pre($output);
   print  end_html;
   exit 0;
 }
@@ -273,7 +275,8 @@ sub menu {
   <li><a href='a.cgi?view=partprofile'>partProfile</a><li>
   <li><a href='a.cgi?view=multipartprofile&name=$namePrev'>Prev</a><li>
   <li><a href='a.cgi?view=multipartprofile&name=$name'>browse</a><li>
-  <li><a href='a.cgi?view=multipartprofile&name=$nameNext'>Next</a><li>","\n",
+  <li><a href='a.cgi?view=multipartprofile&name=$nameNext'>Next</a><li>
+  <li><a href='a.cgi?view=bestfit'>bestfit</a><li>","\n",
   "<li>",
   start_form( -method=>"get", -action=>"./a.cgi?"),
   hidden("view" ),
