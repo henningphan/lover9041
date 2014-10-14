@@ -5,7 +5,7 @@ use List::Util qw(first min);
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(studentExist getXStudents getNextStudent getProfile getPartProfile attrMatch getPreference getPrevStudent);
+our @EXPORT_OK = qw(studentExist getXStudents getNextStudent getProfile getPartProfile attrMatch getPreference getPrevStudent match );
 
 sub studentExist($){  # Returns bool if found
   my($username) =@_;
@@ -142,9 +142,67 @@ sub getPreference($){
     $preference{$key} = \@values;
   }
   return \%preference;
+}
 
+sub match($$){
+  my($src, $targ) = @_;
+  die if not studentExist($src);
+  die if not studentExist($targ);
+  print "src=($src)\n";
+  print "targ=($targ)\n";
+  my $score = 0;
+  my %srcPro= %{getProfile($src)};
+  my %srcPref= %{getPreference($src)};
+  my %targPro= %{getProfile($targ)};
+  my %targPref = %{getPreference($targ)};
+#  $score = like($srcPref{"gender"},$targPro{"gender"});
+  $score = interval( $srcPref{"weight"}, $targPro{"weight"} );
+  print "$score\n";
+  return 1;
 
 
 }
+sub like($$){
+  my($srcRef, $targRef) = @_;
+  foreach my $value (@$srcRef){
+    if( grep {$_ eq $value } @$targRef){
+      return 1;
+
+    }
+  }
+  return 0;
+}
+# assume min is always before max
+sub interval($$){
+  my($srcRef, $targRef) = @_;
+  my $boundLo = $$srcRef[1];
+  my $boundHi = $$srcRef[3];
+  my $value = $$targRef[0];
+#if you dont care about the attribute return max value
+  if( not defined $boundLo){
+    return 1000;
+  }
+#if you care but doesnt know, return half max value
+  if( not defined $value){
+    return 500;
+  }
+  $boundLo=~ s/[^0-9]//g;
+  $boundHi=~ s/[^0-9]//g;
+  $value =~ s/[^0-9]//g;
+  if( $boundLo < $value and $boundHi > $value ){
+    return 1000;
+  }
+  my $diff = min(abs( $boundLo-$value),abs($value-$boundHi));
+  print "diff = $diff\n";
+  if( $diff > 10){
+    return 0;
+  }
+  return 1000-100* $diff;
+  
+  print "$boundLo, $boundHi, $value\n";
+
+
+}
+
 
 1;
